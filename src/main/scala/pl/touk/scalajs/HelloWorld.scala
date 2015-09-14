@@ -13,23 +13,19 @@ import scalatags.JsDom.tags._
 
 import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 
+import upickle.default._
+
 @JSExport
 class HelloWorld {
 
-  private def getData(data:String): Future[List[String]] = {
+  private def getData(data:String): Future[List[GeoLocation]] = {
     val url =s"http://nominatim.openstreetmap.org/search?q=$data&format=json"
-    val result = Ajax.get(url).map(xhr => parseData(js.JSON.parse(xhr.responseText)))
+    val result = Ajax.get(url).map(xhr => read[List[GeoLocation]](xhr.responseText))
     result.onFailure {
-      case ex: Throwable => dom.window.alert(s"Failed with ${ex.getMessage}")
+      case ex: Throwable => dom.window.alert(s"Failed with ${ex.getMessage}, $ex")
     }
     result
   }
-
-  private def parseData(dynamic: js.Dynamic) = {
-    dynamic.asInstanceOf[js.Array[js.Dynamic]].toList.map(p => s"Name: ${p.display_name}, lat: ${p.lat}, lon: ${p.lon}")
-  }
-
-
 
   @JSExport
   def run(): Unit = {
@@ -45,7 +41,7 @@ class HelloWorld {
     )
 
     getData("Lviv").onSuccess {
-      case cont => cont.foreach(v => list.appendChild(li(v).render))
+      case cont => cont.foreach(v => list.appendChild(li(s"${v.name}, ${v.latitude}, ${v.longitude}").render))
     }
 
     document.getElementById("content").appendChild(innerContent.render)
