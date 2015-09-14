@@ -1,4 +1,5 @@
 import com.lihaoyi.workbench.Plugin._
+import spray.revolver.RevolverPlugin.Revolver
 
 enablePlugins(ScalaJSPlugin)
 
@@ -23,6 +24,12 @@ lazy val scalaJDay = crossProject.in(file(".")).
     )
   ).
   jvmSettings(
+    Revolver.settings.settings ++
+      (libraryDependencies ++= Seq(
+      "com.typesafe.akka" %% "akka-stream-experimental" % "1.0",
+      "com.typesafe.akka" %% "akka-http-core-experimental" % "1.0",
+      "com.typesafe.akka" %% "akka-http-experimental" % "1.0"
+    )) : _*
   ).
   jsSettings(
     workbenchSettings ++ Seq(
