@@ -1,0 +1,27 @@
+#DOM
+
+import org.scalajs.dom
+import dom.document
+
+#Scalatags
+
+import scalatags.JsDom.attrs._
+import scalatags.JsDom.short._
+import scalatags.JsDom.tags._
+import scalatags.JsDom.all._
+
+#Ajax
+import org.scalajs.dom.ext.Ajax
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
+import js.JSON.parse
+
+#upickle
+
+import upickle.default._
+
+#react
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.prefix_<^._
+
+#nominatim
+http://nominatim.openstreetmap.org/search?q=$data&format=json
