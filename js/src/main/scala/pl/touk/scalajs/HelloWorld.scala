@@ -1,19 +1,16 @@
 package pl.touk.scalajs
 
+import japgolly.scalajs.react._
+import japgolly.scalajs.react.vdom.prefix_<^._
 import org.scalajs.dom
 import org.scalajs.dom.document
-import org.scalajs.dom.html.Div
 import org.scalajs.dom.ext._
+import upickle.default._
 
 import scala.concurrent.Future
+import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
 import scala.scalajs.js.annotation.JSExport
 import scala.util.Failure
-import scalatags.JsDom.all._
-
-
-import scala.scalajs.concurrent.JSExecutionContext.Implicits.queue
-
-import upickle.default._
 
 @JSExport
 class HelloWorld {
@@ -32,17 +29,41 @@ class HelloWorld {
 
   @JSExport
   def run(): Unit = {
-    val inputBox = input(`type` := "text").render
-    val listDiv = div().render
-    document.body.appendChild(div(inputBox, button("Load", onclick := { () =>
-      getData(inputBox.value).foreach(fill(listDiv))
-    }), listDiv).render)
+    React.render(LocationList(), document.body)
   }
 
-  private def fill(divel: Div)(locations: List[GeoLocationWithComments]) = {
-    divel.children.foreach(divel.removeChild)
-    divel.appendChild(ul(locations.map(loc => li(s"${loc.location.name}: ${loc.comments}"))).render)
+  type State = (String, List[GeoLocationWithComments])
+
+  case class ListBackend($: BackendScope[Unit, State]) {
+
+    def valueChange(event:ReactEventI): Unit = {
+      $.modState(s => (event.target.value, s._2))
+    }
+
+    def onSubmit(): Unit= {
+      getData($.state._1).onSuccess { case locations => $.modState(s => (s._1, locations)) }
+    }
 
   }
+
+  val GeoLocation = ReactComponentB[GeoLocationWithComments]("GeoLocation")
+    .render(locationWithComments => <.div(<.b(locationWithComments.location.name), <.ul(
+      locationWithComments.comments.map(comment => <.li(s"${comment.author} said ${comment.content}"))
+    ))).build
+
+  val LocationList = ReactComponentB[Unit]("LocationList")
+    .initialState(("", List[GeoLocationWithComments]()))
+    .backend(ListBackend)
+    .render(cScope => { val state = cScope.state
+    <.div(
+      <.input(^.`type` := "text", ^.value := state._1, ^.onChange ==> cScope.backend.valueChange),
+      <.button("Search", ^.onClick --> cScope.backend.onSubmit),
+      state._2.isEmpty ?= <.div(<.b("Sorry, no results")),
+      <.ul(
+        state._2.map(GeoLocation(_))
+      )
+    )})
+    .buildU
+
 
 }
