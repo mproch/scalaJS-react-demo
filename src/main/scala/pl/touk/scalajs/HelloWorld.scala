@@ -5,6 +5,11 @@ import scala.scalajs.js.annotation.JSExport
 import org.scalajs.dom
 import dom.document
 
+import scalatags.JsDom.tags._
+import scalatags.JsDom.attrs._
+import scalatags.JsDom.short._
+
+
 @JSExport
 class HelloWorld {
 
@@ -12,13 +17,17 @@ class HelloWorld {
   def run(): Unit = {
 
     println("hello world")
+    val list = ul().render
 
-    val inner = document.createElement("span")
+    val innerContent = div(id := "content3", onclick := { () => {
+        println("hello?")
+        list.appendChild(li("JDay is gr8!").render)
+      }},
+      "hello world",
+      list
+    )
 
-    inner.appendChild(document.createTextNode("hello World"))
-
-    document.body.appendChild(inner)
-    document.getElementById("content").appendChild(inner)
+    document.getElementById("content").appendChild(innerContent.render)
 
   }
 
