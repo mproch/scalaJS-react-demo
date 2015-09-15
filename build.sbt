@@ -36,7 +36,9 @@ lazy val scalaJDay = crossProject.in(file(".")).
       bootSnippet := "document.getElementById(\"content\").innerHTML = \"\"; new pl.touk.scalajs.HelloWorld().run();",
       updateBrowsers <<= updateBrowsers.triggeredBy(fastOptJS in Compile),
       scalaVersion := "2.11.5",
-      libraryDependencies += "com.github.japgolly.scalajs-react" %%% "core" % "0.9.2",
+      libraryDependencies ++= Seq(
+        "com.github.japgolly.scalajs-react" %%% "core" % "0.9.2",
+        "com.github.chandu0101.scalajs-react-components" %%% "core" % "0.2.0-SNAPSHOT"),
       jsDependencies +=
       "org.webjars" % "react" % "0.12.2" / "react-with-addons.js" commonJSName "React"
     ) : _*
